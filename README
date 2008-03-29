@@ -1,4 +1,4 @@
-Corotwine
+COROTWINE
 ---------
 
 Corotwine is an interface to various Twisted APIs using coroutines.
@@ -9,6 +9,7 @@ Dependencies:
 
  * Twisted (Ubuntu 'python-twisted', http://twistedmatrix.com/)
  * Py Lib (Ubuntu 'python-codespeak-lib', http://codespeak.net/py/)
+
 
 LEARNING
 --------
@@ -29,8 +30,7 @@ Currently there are three interesting systems:
 CONTRIBUTING
 ------------
 
-Please file bugs on the twistedmatrix.com bug tracker and assign them to
-radix.
+File bugs at http://launchpad.net/corotwine
 
 If you'd like to make contributions, please make sure they're unit-tested and
 documented.
