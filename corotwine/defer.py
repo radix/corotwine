@@ -1,5 +1,10 @@
 """
-corotwine.defer: Greenlet integration with Twisted Deferreds.
+Greenlet integration with Twisted Deferreds.
+
+If you want to wait for a Deferred to fire, see L{blockOn}.
+
+If an API expects a Deferred from a function you want to implement, see the
+decorator L{deferredGreenlet}.
 """
 
 from corotwine.protocol import MAIN
@@ -13,8 +18,10 @@ from py.magic import greenlet
 
 def blockOn(d):
     """
-    Sblock on a Deferred.
-    
+    Wait for a Deferred to fire, and return its result directly.
+
+    This function must be called from a non-reactor greenlet.
+
     @return: The result of the Deferred.
     @raise: The exception that the Deferred was fired with.
     """
@@ -41,7 +48,7 @@ from twisted.internet.defer import succeed
 
 def deferredGreenlet(gfunction):
     """
-    Convert a function that will use greenlet to do context switching to one
+    Decorate function that will use greenlet to do context switching to one
     that returns a Deferred.
 
     This is a helper for writing functions to be used with frameworks which

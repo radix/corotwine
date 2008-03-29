@@ -234,7 +234,7 @@ class ServerTests(TestCase):
         def writeThenRead(transport):
             # We need to write *twice* because it's the *first* write which
             # will trigger the buffer full, and the *second* that will
-            # actually sblock.
+            # actually block.
             transport.write("lot")
             transport.write("of")
             datas.append(transport.read())
@@ -256,7 +256,7 @@ class ServerTests(TestCase):
 
     def test_writeRaisesInitialConnectionLost(self):
         """
-        If a connectionLost event is received during an outstanding sblocked
+        If a connectionLost event is received during an outstanding blocked
         call to C{transport.write}, the C{transport.write} call should raise
         L{ConnectionClosed}.
         """

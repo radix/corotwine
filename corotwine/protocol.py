@@ -1,20 +1,7 @@
 """
 I/O support for greenlets on Twisted.
 
-Glossary:
- - sblock: switch away from the current greenlet. Implies a later sreturn.
- - sreturn: switch back to a greenlet which has previously sblocked.
-
-Here's how to use corotwine to implement a protocol::
-
-  >>> from corotwine.protocol import gListenTCP
-  >>> from twisted.internet import reactor
-  >>> def echo(transport):
-  ...     while True:
-  ...         transport.write(transport.read())
-  ... 
-  >>> gListenTCP(1027, echo)
-  >>> reactor.run()
+See L{corotwine.examples} for examples of using the API in this module.
 
 This will start an echo server on port 1027.  To see what else can be done
 with C{transport}, refer to L{GreenletTransport}.
@@ -125,7 +112,7 @@ class GreenletTransport(object):
 
     def read(self):
         """
-        Sblock until there is data available, then sreturn it.
+        Block until there is data available, then return it.
         """
         if self._disconnected is not None:
             raise self._disconnected
@@ -142,7 +129,7 @@ class GreenletTransport(object):
         """
         Write the given data to the transport.
 
-        This may sblock if the write buffer is full.
+        This may block if the write buffer is full.
 
         @param data: The data to write.
         @type data: C{str}
@@ -191,15 +178,15 @@ class _GreenletProtocol(Protocol):
     def pauseProducing(self):
         """
         Indicate to the L{GreenletTransport} that future C{write}s should
-        sblock until L{resumeProducing} is called.
+        block until L{resumeProducing} is called.
         """
         self.gtransport._paused = True
 
 
     def resumeProducing(self):
         """
-        Unpause the L{GreenletTransport} and sreturn to the sblocking C{write}
-        call.
+        Unpause the L{GreenletTransport} and cause the blocking C{write} call
+        to return.
         """
         # I'm pretty sure you can't possibly be doing anything other than
         # writing if resumeProducing is called.
