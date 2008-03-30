@@ -22,7 +22,7 @@ setup_args = dict(
     description='Coroutines for Twisted',
     author='Christopher Armstrong',
     author_email='radix@twistedmatrix.com',
-    url='http://twistedmatrix.com/users/radix/corotwine/',
+    url='http://launchpad.net/corotwine/',
     packages=find_packages(),
     )
 
