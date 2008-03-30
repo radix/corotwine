@@ -27,7 +27,7 @@ setup_args = dict(
     )
 
 if 'setuptools' in sys.modules:
-    setup_args["install_requires"] = "Twisted>=8.0.0"
+    setup_args["install_requires"] = "Twisted>=8.1.0"
 
 
 if __name__ == '__main__':

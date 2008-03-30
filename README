@@ -7,7 +7,7 @@ Currently this support is limited to Greenlet (py.magic.greenlet).
 
 Dependencies:
 
- * Twisted (Ubuntu 'python-twisted', http://twistedmatrix.com/)
+ * Twisted >= 8.1 (Ubuntu 'python-twisted', http://twistedmatrix.com/)
  * Py Lib (Ubuntu 'python-codespeak-lib', http://codespeak.net/py/)
 
 
