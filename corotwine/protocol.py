@@ -26,18 +26,6 @@ READING, WRITING = range(2)
 __all__ = ["MAIN", "LineBuffer", "gListenTCP", "gConnectTCP"]
 
 
-class ConnectionClosed(Exception):
-    """
-    The connection has been closed, whether cleanly or uncleanly.
-
-    @ivar reason: The original Twisted exception specifying the reason that the
-        connection was lost. Generally one of L{ConnectionLost} or
-        L{ConnectionDone}.
-    """
-    def __init__(self, reason):
-        self.reason = reason
-
-
 class LineBuffer(object):
     """
     A line-buffering wrapper for L{GreenletTransport}s (or any other object
@@ -88,12 +76,11 @@ class GreenletTransport(object):
 
     @ivar _transport: See L{__init__}.
     @ivar _protocol: See L{__init__}.
-
-    @ivar _disconnected: None or a L{ConnectionClosed}. If set, I/O operations
-        will raise exceptions.
+    @ivar _disconnected: None or a L{twisted.python.failure.Failure}. If set,
+        I/O operations will raise the encapsulated error.
     @ivar _state: Indicates whether the greenlet hooked up to this transport
         is currently reading or writing. Can be C{READING} or C{WRITING}.
-    @type _state: Enum of C{READING, WRITING}.
+    @type _state: One of C{READING, WRITING}.
     """
 
     def __init__(self, transport, protocol):
@@ -115,7 +102,7 @@ class GreenletTransport(object):
         Block until there is data available, then return it.
         """
         if self._disconnected is not None:
-            raise self._disconnected
+            self._disconnected.raiseException()
         if self._protocol._buffer != "":
             buffer, self._protocol._buffer = self._protocol._buffer, ""
             return buffer
@@ -135,7 +122,7 @@ class GreenletTransport(object):
         @type data: C{str}
         """
         if self._disconnected is not None:
-            raise self._disconnected
+            self._disconnected.raiseException()
         if self._paused:
             self._state = WRITING
             MAIN.switch()
@@ -217,15 +204,14 @@ class _GreenletProtocol(Protocol):
 
     def connectionLost(self, reason):
         """
-        Record the connection is lost, and if the greenlet is currently
-        performing I/O, throw L{ConnectionClosed} except into it.
-        L{GreenletTransport} will raise L{ConnectionClosed} for any further I/O
+        Record that the connection is lost, and if the greenlet is currently
+        performing I/O, throw C{reason}'s exception into it.
+        L{GreenletTransport} will raise that exception for any further I/O
         operations.
         """
-        exception = ConnectionClosed(reason.value)
-        self.gtransport._disconnected = exception
+        self.gtransport._disconnected = reason
         if self.gtransport._state in (READING, WRITING):
-            self.greenlet.throw(exception)
+            reason.throwExceptionIntoGenerator(self.greenlet)
 
 
 

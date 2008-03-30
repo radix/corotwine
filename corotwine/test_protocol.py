@@ -12,7 +12,6 @@ from twisted.python.failure import Failure
 from twisted.internet.task import Clock
 
 from corotwine.protocol import _GreenletFactory, LineBuffer, gConnectTCP
-from corotwine.protocol import ConnectionClosed
 from corotwine.clock import wait
 
 from py.magic import greenlet
@@ -134,27 +133,26 @@ class ServerTests(TestCase):
     def test_readOnClosedTransport(self):
         """
         Calling C{transport.read()} when the connection has been lost raises
-        L{ConnectionClosed} with the original Twisted reason.
+        the disconnection reason.
         """
         for errorType in (ConnectionLost, ConnectionDone):
             dones = []
             def readOnClosed(transport):
                 try:
                     transport.read()
-                except ConnectionClosed, e:
+                except errorType, e:
                     dones.append(e)
             twistedTransport, protocol = self.connect(readOnClosed)
             e = errorType("Oops!")
             twistedTransport.disconnectReason = Failure(e)
             twistedTransport.reportDisconnect()
-            self.assertEquals(len(dones), 1)
-            self.assertEquals(dones[0].reason, e)
+            self.assertEquals(dones, [e])
 
 
     def test_writeOnClosedTransport(self):
         """
         If C{transport.write} is called on a disconnected transport,
-        L{ConnectionClosed} should be raised.
+        the disconnection reason will be raised.
         """
         error = []
         def writeOnClosed(transport):
@@ -172,15 +170,14 @@ class ServerTests(TestCase):
         e = ConnectionLost("Oops!")
         twistedTransport.disconnectReason = Failure(e)
         twistedTransport.reportDisconnect()
-        self.assertEquals(len(error), 1)
-        self.assertEquals(error[0].reason, e)
+        self.assertEquals(error, [e])
 
 
     def test_closedTransportOnlyThrowsForIO(self):
         """
         If the I/O greenlet is switched away for a reason other than I/O, a
-        connection being lost should not cause the other switched call to
-        raise an exception; the exception should be raised the next time an
+        connection being lost will not cause the other switched call to
+        raise an exception; the exception will be raised the next time an
         I/O operation is done.
         """
         dones = []
@@ -189,15 +186,14 @@ class ServerTests(TestCase):
             wait(5, clock)
             try:
                 transport.read()
-            except ConnectionClosed, e:
+            except ConnectionDone, e:
                 dones.append(e)
         twistedTransport, protocol = self.connect(waitThenRead)
         e = ConnectionDone("Oops!")
         twistedTransport.disconnectReason = Failure(e)
         twistedTransport.reportDisconnect()
         clock.advance(5)
-        self.assertEquals(len(dones), 1)
-        self.assertEquals(dones[0].reason, e)
+        self.assertEquals(dones, [e])
 
 
     def test_streamEfficiently(self):
@@ -257,8 +253,8 @@ class ServerTests(TestCase):
     def test_writeRaisesInitialConnectionLost(self):
         """
         If a connectionLost event is received during an outstanding blocked
-        call to C{transport.write}, the C{transport.write} call should raise
-        L{ConnectionClosed}.
+        call to C{transport.write}, the C{transport.write} call will raise
+        the disconnection reason.
         """
         error = []
         def writeLots(transport):
@@ -277,8 +273,7 @@ class ServerTests(TestCase):
         e = ConnectionLost("hi")
         twistedTransport.disconnectReason = Failure(e)
         twistedTransport.reportDisconnect()
-        self.assertEquals(len(error), 1)
-        self.assertEquals(error[0].reason, e)
+        self.assertEquals(error, [e])
 
 
     def test_stopProducing(self):

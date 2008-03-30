@@ -4,11 +4,11 @@ code, not the API docs.
 """
 import string, random
 
+from twisted.internet.error import ConnectionClosed
 from twisted.protocols.amp import AMP, Command, String
 from twisted.web.client import getPage
 
 from corotwine.protocol import gListenTCP, gConnectTCP, LineBuffer
-from corotwine.protocol import ConnectionClosed
 from corotwine.defer import blockOn, deferredGreenlet
 
 from py.magic import greenlet
