@@ -62,7 +62,7 @@ class Chat(object):
                             client.writeLine(line)
             finally:
                 self.clients.remove(transport)
-        except ConnectionLost:
+        except ConnectionClosed:
             return
 
 
