@@ -69,6 +69,7 @@ def fetchGoogle(transport):
     transport.write(result)
 
 
+
 ## And an amp example, to show off deferredGreenlet
 
 class FetchGoogle(Command):

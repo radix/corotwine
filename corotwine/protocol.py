@@ -3,9 +3,6 @@ I/O support for greenlets on Twisted.
 
 See L{corotwine.examples} for examples of using the API in this module.
 
-This will start an echo server on port 1027.  To see what else can be done
-with C{transport}, refer to L{GreenletTransport}.
-
 By the way, I have a niggling suspicion that it's a really bad idea to use
 C{transport} from multiple greenlets.
 """
@@ -259,7 +256,9 @@ def gListenTCP(port, function, reactor=None):
     """
     Listen for TCP connections and handle them with the given greenlet
     function.  The function will be called in a new greenlet for each incoming
-    connection, and will be passed an instance of L{GreenletTransport}.
+    connection, and will be passed an instance of L{GreenletTransport}. When
+    the function finally returns or raises an exception the connection will be
+    closed.
 
     @param port: The port number to listen on.
     @type port: C{int}
