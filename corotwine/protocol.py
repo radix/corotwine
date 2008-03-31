@@ -135,12 +135,17 @@ class GreenletTransport(object):
         Close the connection.
         """
         self._transport.loseConnection()
+        self._protocol._closed = True
 
 
 
 class _GreenletProtocol(Protocol):
     """
     A protocol which calls a greenlet to handle the connection.
+
+    @ivar function: The function that will be called to handle connected
+        transports.
+    @ivar _closed: Whether the connection should be considered done with.
     """
 
     def __init__(self, function):
@@ -149,6 +154,20 @@ class _GreenletProtocol(Protocol):
             instance of L{GreenletTransport}.
         """
         self.function = function
+        self._closed = False
+
+
+    def _runAndDisconnect(self, transport):
+        """
+        Run the function that will handle the connection and then close the
+        connection.
+
+        @param transport: The connected L{GreenletTransport}.
+        """
+        self.function(transport)
+        if not self._closed:
+            self._closed = True
+            self.transport.loseConnection()
 
 
     def connectionMade(self):
@@ -156,7 +175,7 @@ class _GreenletProtocol(Protocol):
         Initiate the connection by switching to the greenlet.
         """
         self._buffer = ""
-        self.greenlet = greenlet(self.function)
+        self.greenlet = greenlet(self._runAndDisconnect)
         self.gtransport = GreenletTransport(self.transport, self)
         self.transport.registerProducer(self, True)
         self.greenlet.switch(self.gtransport)
@@ -209,6 +228,7 @@ class _GreenletProtocol(Protocol):
         L{GreenletTransport} will raise that exception for any further I/O
         operations.
         """
+        self._closed = True
         self.gtransport._disconnected = reason
         if self.gtransport._state in (READING, WRITING):
             reason.throwExceptionIntoGenerator(self.greenlet)

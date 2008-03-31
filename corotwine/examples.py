@@ -31,9 +31,7 @@ def discard(transport):
 
 
 def qotd(transport):
-    # Sample of using transport.close()
     transport.write("An apple a day keeps the doctor away.\r\n")
-    transport.close()
 
 
 def chargen(transport):
@@ -69,7 +67,6 @@ class Chat(object):
 def fetchGoogle(transport):
     result = blockOn(getPage("http://google.com/"))
     transport.write(result)
-    transport.close()
 
 
 ## And an amp example, to show off deferredGreenlet
@@ -95,7 +92,6 @@ def echoclient():
         print "Echo server test succeeded!"
     else:
         print "Echo server test failed :-("
-    transport.close()
 
 
 def googleAMPClient():

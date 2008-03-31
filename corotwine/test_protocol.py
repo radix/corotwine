@@ -118,6 +118,60 @@ class ServerTests(TestCase):
                           protocol.makeConnection, twistedTransport)
 
 
+    def test_returnCloses(self):
+        """
+        When the function handling a connection completes, the transport will
+        be closed.
+        """
+        def nothing(transport):
+            transport.read()
+            return
+        twistedTransport, protocol = self.connect(nothing)
+        protocol.dataReceived("hello")
+        self.assertTrue(twistedTransport.disconnecting)
+
+
+    def test_returnOnlyClosesIfNotClosed(self):
+        """
+        C{loseConnection} will only be called on the transport upon return of
+        the connection-handling function if the connection hasn't already been
+        explicitly closed.
+        """
+        def close(transport):
+            transport.read()
+            transport.close()
+            return
+        twistedTransport, protocol = self.getTransportAndProtocol(close)
+        disconnects = []
+        twistedTransport.loseConnection = lambda: disconnects.append(True)
+        protocol.makeConnection(twistedTransport)
+        protocol.dataReceived("foo")
+        self.assertEquals(disconnects, [True])
+
+
+    def test_returnOnlyClosesIfNotLost(self):
+        """
+        L{loseConnection} will only be called on the transport upon return of
+        the connection-handling function if the connection hasn't been lost.
+
+        This is like L{test_returnOnlyClosesIfNotClosed}, but it tests the case
+        where the connection was closed by the other side, instead of with an
+        explicit call to C{transport.close} by the connection-handling
+        function.
+        """
+        def nothing(transport):
+            try:
+                transport.read()
+            except ConnectionLost:
+                pass
+            return
+        twistedTransport, protocol = self.getTransportAndProtocol(nothing)
+        twistedTransport.loseConnection = lambda: self.fail(
+            "loseConnection shouldn't be called!")
+        protocol.makeConnection(twistedTransport)
+        protocol.connectionLost(Failure(ConnectionLost("Woops")))
+
+
     def test_exceptionDuringReadingCloses(self):
         """
         Same behavioral test as L{test_exceptionCloses}, but we need to check
