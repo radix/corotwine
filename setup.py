@@ -17,7 +17,7 @@ def find_packages():
 
 setup_args = dict(
     name='Corotwine',
-    version='0.1',
+    version='0.2',
     license="MIT",
     description='Coroutines for Twisted',
     author='Christopher Armstrong',
