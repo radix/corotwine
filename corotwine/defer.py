@@ -30,12 +30,12 @@ def blockOn(d):
     def cb(result):
         if greenlet.getcurrent() is current:
             synchronous.append(result)
-        else: # Oh crap, this else is untested!
+        else:
             current.switch(result)
     def eb(failure):
         if greenlet.getcurrent() is current:
             synchronous.append(failure)
-        else: # Oh crap, this else is untested!
+        else:
             failure.throwExceptionIntoGenerator(current)
     d.addCallbacks(cb, eb)
     if synchronous:
