@@ -4,8 +4,7 @@ Tests for L{corotwine.clock}.
 from twisted.trial.unittest import TestCase
 from twisted.internet.task import Clock
 
-from py.magic import greenlet
-
+from corotwine import greenlet
 from corotwine.clock import wait
 
 

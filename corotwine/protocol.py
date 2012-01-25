@@ -12,7 +12,7 @@ from twisted.internet.protocol import Protocol, Factory, ClientFactory
 from twisted.internet.error import ConnectionLost, ConnectionDone
 from twisted.protocols.basic import LineReceiver
 
-from py.magic import greenlet
+from corotwine import greenlet
 
 
 MAIN = greenlet.getcurrent()

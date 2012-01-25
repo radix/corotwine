@@ -8,12 +8,11 @@ decorator L{deferredGreenlet}.
 """
 
 from corotwine.protocol import MAIN
+from corotwine import greenlet
 
 from twisted.python.failure import Failure
 from twisted.python.util import mergeFunctionMetadata
 from twisted.internet.defer import Deferred
-
-from py.magic import greenlet
 
 
 def blockOn(d):

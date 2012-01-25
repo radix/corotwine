@@ -2,8 +2,7 @@
 Time manipulation for greenlets.
 """
 
-from py.magic import greenlet
-
+from corotwine import greenlet
 from corotwine.protocol import MAIN
 
 def wait(seconds, clock=None):
