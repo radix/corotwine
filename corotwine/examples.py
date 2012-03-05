@@ -10,8 +10,7 @@ from twisted.web.client import getPage
 
 from corotwine.protocol import gListenTCP, gConnectTCP, LineBuffer
 from corotwine.defer import blockOn, deferredGreenlet
-
-from py.magic import greenlet
+from corotwine import greenlet
 
 
 def echo(transport):

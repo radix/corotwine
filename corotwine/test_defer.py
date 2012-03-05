@@ -1,8 +1,8 @@
 """
 Tests for L{corotwine.defer}.
 """
-from py.magic import greenlet
 
+from corotwine import greenlet
 from corotwine.defer import blockOn, deferredGreenlet
 from corotwine.clock import wait
 

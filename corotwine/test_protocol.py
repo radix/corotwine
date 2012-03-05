@@ -13,8 +13,7 @@ from twisted.internet.task import Clock
 
 from corotwine.protocol import _GreenletFactory, LineBuffer, gConnectTCP
 from corotwine.clock import wait
-
-from py.magic import greenlet
+from corotwine import greenlet
 
 
 class ServerTests(TestCase):
